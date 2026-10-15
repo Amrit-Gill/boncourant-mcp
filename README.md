@@ -37,7 +37,7 @@ Use the live manifest or MCP `tools/list` for current schemas. Available checks 
 
 ## Privacy and boundaries
 
-The public MCP service does not expose private customer accounts, workspaces, Enedis consent, supplier switching or supplier outreach. Direct document extraction is non-retained. Asynchronous studies use opaque receipts; raw input is encrypted until processing ends, then erased, and results expire within 24 hours. Shared-service rate and size limits apply. Review the [integration guidance](INTEGRATION.md) and [privacy policy](https://boncourant.fr/confidentialite) before submitting documents.
+The public MCP service does not expose private customer accounts, workspaces, Enedis consent, supplier switching or supplier outreach. Direct document extraction is non-retained. Asynchronous studies use opaque receipts; raw input is encrypted until processing ends, then erased, and results expire within 24 hours. Shared-service rate and size limits apply. Review the [integration guidance](INTEGRATION.md) and [privacy policy](https://boncourant.fr/rgpd) before submitting documents.
 
 ## Public metadata
 
