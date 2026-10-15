@@ -1,0 +1,2537 @@
+{
+  "protocolVersion": "2026-07-28",
+  "endpoint": "https://boncourant.fr/mcp",
+  "transport": "streamable-http",
+  "authentication": "none",
+  "serverInfo": {
+    "name": "boncourant",
+    "title": "Boncourant — tarifs et audit d'électricité en France",
+    "version": "1.5.0"
+  },
+  "tools": [
+    {
+      "name": "list_capabilities",
+      "title": "Découvrir les capacités Boncourant",
+      "description": "Liste les analyses réellement disponibles, les preuves nécessaires, les livrables, les limites, les méthodes et les prochains outils MCP à appeler. Utilisez cet outil en premier quand la demande porte sur l'électricité en France ou que le bon parcours est incertain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "audience": {
+            "type": "string",
+            "enum": [
+              "household",
+              "professional",
+              "large_consumer",
+              "producer"
+            ]
+          },
+          "capability_id": {
+            "type": "string",
+            "description": "Identifiant exact retourné lors d'un appel précédent."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "hc_schedule_change_impact",
+      "title": "Impact d'un changement d'heures creuses",
+      "description": "Calcule ce qu'un changement de plages d'heures creuses coûte à l'année, en facturant deux fois la même consommation (avant / après) avec les mêmes prix et le même abonnement. Les horaires viennent du courrier ou de la facture : aucune adresse ne résout des heures creuses, Enedis les attribuant par point de livraison. Accepte une répartition HP/HC facturée ou une consommation annuelle ; la courbe mesurée se lit dans l'étude Boncourant. Les prix sont fournis par l'appelant, toutes taxes comprises, et rien n'est conservé.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "old_schedule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "winter_windows",
+              "summer_windows"
+            ],
+            "properties": {
+              "winter_windows": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "start_h",
+                    "end_h"
+                  ],
+                  "properties": {
+                    "start_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    },
+                    "end_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    }
+                  }
+                }
+              },
+              "summer_windows": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "start_h",
+                    "end_h"
+                  ],
+                  "properties": {
+                    "start_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    },
+                    "end_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    }
+                  }
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "enum": [
+                  "bill",
+                  "declaration",
+                  "meter",
+                  "assumed"
+                ]
+              }
+            }
+          },
+          "new_schedule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "winter_windows",
+              "summer_windows"
+            ],
+            "properties": {
+              "winter_windows": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "start_h",
+                    "end_h"
+                  ],
+                  "properties": {
+                    "start_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    },
+                    "end_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    }
+                  }
+                }
+              },
+              "summer_windows": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "start_h",
+                    "end_h"
+                  ],
+                  "properties": {
+                    "start_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    },
+                    "end_h": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 23
+                    }
+                  }
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "enum": [
+                  "bill",
+                  "declaration",
+                  "meter",
+                  "assumed"
+                ]
+              }
+            }
+          },
+          "current_option": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "option",
+              "hp_eur_per_kwh",
+              "hc_eur_per_kwh",
+              "subscription_eur_per_year"
+            ],
+            "properties": {
+              "option": {
+                "type": "string",
+                "enum": [
+                  "base",
+                  "hp_hc",
+                  "tempo"
+                ]
+              },
+              "hp_eur_per_kwh": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              },
+              "hc_eur_per_kwh": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              },
+              "subscription_eur_per_year": {
+                "type": "number",
+                "minimum": 0
+              },
+              "price_label": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "price_as_of": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "kwh_by_colour": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "bleu",
+                  "blanc",
+                  "rouge"
+                ],
+                "properties": {
+                  "bleu": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "blanc": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "rouge": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "option",
+                "hp_eur_per_kwh",
+                "hc_eur_per_kwh",
+                "subscription_eur_per_year"
+              ],
+              "properties": {
+                "option": {
+                  "type": "string",
+                  "enum": [
+                    "base",
+                    "hp_hc",
+                    "tempo"
+                  ]
+                },
+                "hp_eur_per_kwh": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "hc_eur_per_kwh": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "subscription_eur_per_year": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "price_label": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "price_as_of": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "kwh_by_colour": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "bleu",
+                    "blanc",
+                    "rouge"
+                  ],
+                  "properties": {
+                    "bleu": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "blanc": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "rouge": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "consumption": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "basis",
+                  "annual_kwh",
+                  "hp_kwh",
+                  "hc_kwh"
+                ],
+                "properties": {
+                  "basis": {
+                    "const": "split"
+                  },
+                  "annual_kwh": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000
+                  },
+                  "hp_kwh": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hc_kwh": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "shape": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "hourly_share",
+                      "monthly_share"
+                    ],
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      "hourly_share": {
+                        "type": "array",
+                        "minItems": 24,
+                        "maxItems": 24,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      },
+                      "monthly_share": {
+                        "type": "array",
+                        "minItems": 12,
+                        "maxItems": 12,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "basis",
+                  "annual_kwh"
+                ],
+                "properties": {
+                  "basis": {
+                    "const": "annual"
+                  },
+                  "annual_kwh": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000
+                  },
+                  "shape": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "hourly_share",
+                      "monthly_share"
+                    ],
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      "hourly_share": {
+                        "type": "array",
+                        "minItems": 24,
+                        "maxItems": 24,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      },
+                      "monthly_share": {
+                        "type": "array",
+                        "minItems": 12,
+                        "maxItems": 12,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "old_schedule",
+          "new_schedule",
+          "current_option",
+          "consumption"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "simulate",
+      "title": "Simuler une facture résidentielle",
+      "description": "Simule la facture annuelle d'électricité pour un foyer français. Compare les offres de marché au tarif réglementé et estime les économies potentielles.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postal_code": {
+            "type": "string",
+            "description": "Code postal à 5 chiffres"
+          },
+          "puissance_kva": {
+            "type": "number",
+            "description": "Puissance du compteur en kVA"
+          },
+          "conso_annuelle_kwh": {
+            "type": "number",
+            "description": "Consommation annuelle en kWh (lue sur la facture)"
+          },
+          "option": {
+            "type": "string",
+            "enum": [
+              "Base",
+              "HP/HC",
+              "Tempo"
+            ]
+          },
+          "proportion_hc": {
+            "type": "number",
+            "description": "Proportion de consommation en heures creuses (0.0 à 1.0). Requis si option = HP/HC."
+          }
+        },
+        "required": [
+          "postal_code",
+          "puissance_kva",
+          "conso_annuelle_kwh"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "analyze_bill",
+      "title": "Analyser une facture résidentielle",
+      "description": "Analyse une facture d'électricité résidentielle déjà extraite (champs structurés) via le moteur versionné. Retourne un verdict explicite stay/switch et l'option tarifaire de chaque offre ; quand aucune offre ne bat le contrat actuel, recommended_offer ne désigne jamais l'offre plus chère du catalogue. MCP est JSON uniquement : extrayez le PDF en amont, puis appelez cet outil avec les champs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conso_annuelle_kwh": {
+            "type": "number",
+            "description": "Consommation annuelle en kWh (lue sur la facture)"
+          },
+          "puissance_kva": {
+            "type": "number",
+            "description": "Puissance souscrite en kVA"
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "Code postal à 5 chiffres"
+          },
+          "option": {
+            "type": "string",
+            "enum": [
+              "Base",
+              "HP/HC",
+              "Tempo"
+            ],
+            "description": "Option tarifaire actuelle"
+          },
+          "conso_kwh_hp": {
+            "type": "number",
+            "description": "Consommation en heures pleines (kWh), si option HP/HC"
+          },
+          "conso_kwh_hc": {
+            "type": "number",
+            "description": "Consommation en heures creuses (kWh), si option HP/HC"
+          },
+          "current_supplier": {
+            "type": "string",
+            "description": "Fournisseur actuel (facultatif)"
+          },
+          "current_offer": {
+            "type": "string",
+            "description": "Nom de l'offre actuelle (facultatif)"
+          },
+          "current_annual_cost_eur": {
+            "type": "number",
+            "description": "Coût annuel TTC du contrat actuel en euros (facultatif) — sert de référence pour l'économie"
+          }
+        },
+        "required": [
+          "conso_annuelle_kwh",
+          "puissance_kva",
+          "postal_code"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_methodology",
+      "title": "Consulter la méthodologie Boncourant",
+      "description": "Retourne la méthodologie de calcul, ses sources, hypothèses et limites. Filtrez par method_id, family ou version pour éviter de charger tout le registre ; sans filtre, retourne le registre complet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "method_id": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "decompose_invoice",
+      "title": "Décomposer et réconcilier une facture",
+      "description": "Agrège des lignes de facture déjà extraites en postes canoniques (énergie, TURPE, accise, CTA, TVA, capacité, CEE, frais) et vérifie que leur somme correspond aux totaux HT/TTC déclarés. Retourne la méthode, sa version et le hash des entrées.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "line_items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "enum": [
+                    "energy",
+                    "turpe_fixed",
+                    "turpe_variable",
+                    "accise",
+                    "cta",
+                    "tva",
+                    "capacity",
+                    "cee",
+                    "fees",
+                    "other"
+                  ]
+                },
+                "amount_ht": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "amount_tva": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "amount_ttc": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "quantity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "unit": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "temporal_class": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "estimated",
+                    "indicative",
+                    "not_enough_data"
+                  ]
+                }
+              },
+              "required": [
+                "component",
+                "confidence"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "stated_total_ttc": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "stated_total_ht": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "line_items"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "annualize_invoice",
+      "title": "Annualiser une facture",
+      "description": "Annualise la consommation et/ou le total TTC d'une période avec les coefficients officiels du profil Enedis correspondant au segment, à l'option et à la puissance. Si les coefficients sont indisponibles, le repli linéaire est explicite et borné pour les kWh.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "period_start": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "period_end": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "period_kwh": {
+            "type": "number",
+            "minimum": 0
+          },
+          "period_total_ttc_eur": {
+            "type": "number",
+            "minimum": 0
+          },
+          "segment": {
+            "type": "string",
+            "enum": [
+              "residentiel",
+              "pro_bt36",
+              "pro_bt36plus"
+            ]
+          },
+          "option": {
+            "type": "string",
+            "enum": [
+              "base",
+              "hp_hc",
+              "tempo"
+            ]
+          },
+          "puissance_kva": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 250
+          }
+        },
+        "required": [
+          "period_start",
+          "period_end",
+          "segment",
+          "puissance_kva"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "period_kwh"
+            ]
+          },
+          {
+            "required": [
+              "period_total_ttc_eur"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "check_subscribed_power",
+      "title": "Vérifier la puissance souscrite",
+      "description": "Évalue la puissance à la date demandée sans extrapoler une pointe isolée. Une candidature C5 exige une année de pointes apparentes officielles et les paliers du contrat ; une C4 exige P1 à P4 et reste non concluante si une pointe non étiquetée tombe entre les seuils actifs P1 × 0,93 et P4 × 0,93.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "evaluation_date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "subscribed_kva": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 250
+          },
+          "max_demand_kw": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "monthly_max_kw": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 12
+          },
+          "connection_segment": {
+            "type": "string",
+            "enum": [
+              "c5_bt_le_36",
+              "c4_bt_gt_36_le_250"
+            ]
+          },
+          "max_demand_kva": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "monthly_max_kva": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 12
+          },
+          "measurement_period_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 370
+          },
+          "measurement_basis": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "official_metering",
+              "invoice_peak",
+              null
+            ]
+          },
+          "subscribed_powers_kva": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "p1": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 250
+              },
+              "p2": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 250
+              },
+              "p3": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 250
+              },
+              "p4": {
+                "type": "number",
+                "exclusiveMinimum": 36,
+                "maximum": 250
+              }
+            },
+            "required": [
+              "p1",
+              "p2",
+              "p3",
+              "p4"
+            ],
+            "additionalProperties": false
+          },
+          "available_contract_tiers_kva": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 36
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "evaluation_date",
+          "subscribed_kva",
+          "connection_segment"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "analyze_renewal_terms",
+      "title": "Analyser une échéance contractuelle",
+      "description": "Calcule l'échéance, la date limite de préavis, le dépassement éventuel et l'urgence à partir de clauses déjà extraites. Le type de prix est une valeur canonique, jamais déduit d'un texte libre par cet outil.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "end_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "auto_renewal": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "notice_period_days": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "pricing_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "fixed",
+              "market_indexed",
+              "spot_indexed",
+              "trve_linked",
+              "arenh_reference",
+              null
+            ]
+          },
+          "evaluation_date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          }
+        },
+        "required": [
+          "evaluation_date"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "assess_historical_optimality",
+      "title": "Contrôler l'optimalité historique",
+      "description": "Compare un contrat signé uniquement aux offres datées, valides et faisables au moment de la signature, sans utiliser d'information postérieure. La conclusion est limitée aux preuves fournies et ne prétend jamais couvrir tout le marché.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "contract": {
+            "type": "object",
+            "properties": {
+              "contract_id": {
+                "type": "string"
+              },
+              "supplier_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "signed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "delivery_start": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "delivery_end": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "term_months": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "exclusiveMinimum": 0
+              },
+              "comparable_cost_eur_year": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "exclusiveMinimum": 0
+              },
+              "comparison_basis": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "contract_id",
+              "supplier_id",
+              "signed_at",
+              "delivery_start",
+              "delivery_end",
+              "term_months",
+              "comparable_cost_eur_year",
+              "comparison_basis"
+            ],
+            "additionalProperties": false
+          },
+          "alternatives": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "properties": {
+                "candidate_id": {
+                  "type": "string"
+                },
+                "supplier_id": {
+                  "type": "string"
+                },
+                "issued_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "valid_from": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "valid_until": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "delivery_start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "delivery_end": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "term_months": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "exclusiveMinimum": 0
+                },
+                "comparable_cost_eur_year": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "exclusiveMinimum": 0
+                },
+                "comparison_basis": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "feasibility": {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "unconfirmed",
+                    "rejected"
+                  ]
+                },
+                "feasibility_reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 20
+                },
+                "evidence_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "candidate_id",
+                "supplier_id",
+                "issued_at",
+                "valid_from",
+                "valid_until",
+                "delivery_start",
+                "delivery_end",
+                "term_months",
+                "comparable_cost_eur_year",
+                "comparison_basis",
+                "feasibility"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "materiality_eur_year": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "contract",
+          "alternatives"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "renewal_advisor",
+      "title": "Conseiller un renouvellement professionnel",
+      "description": "Joint l'échéance et le préavis du contrat, la courbe EEX CAL Y+1/Y+2 fraîche et le catalogue professionnel comparable. Une courbe stale/partielle ne déclenche jamais de décision, et seuls les prix HT fourniture sont comparés au prix verrouillé HT fourniture.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "evaluation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "auto_renewal": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "notice_period_days": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "pricing_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "fixed",
+              "market_indexed",
+              "spot_indexed",
+              "trve_linked",
+              "arenh_reference",
+              null
+            ]
+          },
+          "current_locked_supply_eur_mwh": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Prix actuel HT fourniture, en €/MWh"
+          },
+          "annual_consumption_mwh": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "exclusiveMinimum": 0
+          },
+          "budget_eur_mwh": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "exclusiveMinimum": 0
+          },
+          "ceiling_eur_mwh": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "exclusiveMinimum": 0
+          },
+          "locked_fraction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0
+          },
+          "segment": {
+            "type": "string",
+            "enum": [
+              "c5_bt_le_36",
+              "c4_bt_gt_36_le_250"
+            ]
+          },
+          "structure": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "base",
+              "hp_hc",
+              "hph_hch_hpe_hce",
+              null
+            ]
+          }
+        },
+        "required": [
+          "evaluation_date",
+          "current_locked_supply_eur_mwh",
+          "segment"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "extract_energy_document",
+      "title": "Extraire et auditer une facture ou un contrat",
+      "description": "Extrait en mémoire un PDF ou un texte de facture/contrat via l'extracteur européen, retire les identifiants sensibles de la réponse et lance immédiatement les méthodes déterministes applicables. Le document n'est pas conservé ; les champs incertains exigent confirmation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "document_kind": {
+            "type": "string",
+            "enum": [
+              "bill",
+              "contract"
+            ]
+          },
+          "segment": {
+            "type": "string",
+            "enum": [
+              "residentiel",
+              "professionnel"
+            ]
+          },
+          "evaluation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "document_base64": {
+            "type": "string",
+            "description": "PDF base64, 10 Mo maximum"
+          },
+          "document_text": {
+            "type": "string",
+            "maxLength": 100000,
+            "description": "Texte déjà extrait, alternative au PDF"
+          },
+          "document_file": {
+            "type": "object",
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "download_url",
+              "file_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "document_kind",
+          "segment",
+          "evaluation_date"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "document_file"
+            ]
+          },
+          {
+            "required": [
+              "document_base64"
+            ]
+          },
+          {
+            "required": [
+              "document_text"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "_meta": {
+        "openai/fileParams": [
+          "document_file"
+        ],
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ]
+    },
+    {
+      "name": "run_method",
+      "title": "Exécuter une méthode Boncourant versionnée",
+      "description": "Exécute directement une méthode pure publiée par get_methodology avec son JSON Schema, sa version et son hash d'entrée. Les méthodes nécessitant un contexte non sérialisable, comme le calendrier Tempo, sont explicitement refusées.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "method_id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "valid_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "context": {
+            "type": "object",
+            "properties": {
+              "cta_fraction": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "method_id",
+          "input"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "version"
+            ]
+          },
+          {
+            "required": [
+              "valid_on"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "assess_ppa",
+      "title": "Évaluer un PPA pour un client",
+      "description": "Produit une analyse PPA conditionnelle pour un acheteur, producteur ou prosumer : avantages, risques contractuels, sensibilités économiques fournies par le client, alternatives, liquidité, fiscalité, administration, garanties d'origine et points de négociation. Pour analyser le texte d'un contrat, appelez d'abord extract_energy_document puis transmettez extract.ppa et extract.reading_coverage. Ne présente jamais un scénario comme une prévision ni une orientation générale comme un avis juridique ou fiscal individualisé.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "customer": {
+            "type": "object",
+            "properties": {
+              "requested": {
+                "type": "boolean"
+              },
+              "useUploadedProductionForPpa": {
+                "type": "boolean"
+              },
+              "productionAllocationPct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "buyer",
+                  "producer",
+                  "prosumer"
+                ]
+              },
+              "structure": {
+                "type": "string",
+                "enum": [
+                  "physical",
+                  "sleeved",
+                  "onsite",
+                  "virtual"
+                ]
+              },
+              "volumeBasis": {
+                "type": "string",
+                "enum": [
+                  "pay_as_produced",
+                  "baseload",
+                  "pay_as_consumed",
+                  "fixed_volume"
+                ]
+              },
+              "annualVolumeMwh": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "annualConsumptionMwh": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "annualProductionMwh": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "strikeEurMwh": {
+                "type": "number"
+              },
+              "termYears": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 60
+              },
+              "discountRatePct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "annualFeesEur": {
+                "type": "number",
+                "minimum": 0
+              },
+              "upfrontCostEur": {
+                "type": "number",
+                "minimum": 0
+              },
+              "collateralEur": {
+                "type": "number",
+                "minimum": 0
+              },
+              "liquidityBudgetEur": {
+                "type": "number",
+                "minimum": 0
+              },
+              "commitmentHorizonYears": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "goRequired": {
+                "type": "boolean"
+              },
+              "goTransferred": {
+                "type": "boolean"
+              },
+              "supportScheme": {
+                "type": "string"
+              },
+              "accountingStandard": {
+                "type": "string",
+                "enum": [
+                  "french_gaap",
+                  "ifrs",
+                  "unknown"
+                ]
+              },
+              "scenarios": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "marketPriceEurMwh": {
+                      "type": "number"
+                    },
+                    "settlementPriceEurMwh": {
+                      "type": "number"
+                    },
+                    "productionChangePct": {
+                      "type": "number",
+                      "minimum": -100,
+                      "maximum": 300
+                    },
+                    "consumptionChangePct": {
+                      "type": "number",
+                      "minimum": -100,
+                      "maximum": 300
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "marketPriceEurMwh"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "alternatives": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "annualNetEur": {
+                      "type": "number"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "buyer",
+                        "producer"
+                      ]
+                    },
+                    "comparable": {
+                      "type": "boolean"
+                    },
+                    "basis": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "annualNetEur",
+                    "role",
+                    "comparable",
+                    "basis"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "fixedPriceConfirmed": {
+                "type": "boolean"
+              },
+              "costPerimeterComplete": {
+                "type": "boolean"
+              },
+              "operationalReadinessConfirmed": {
+                "type": "boolean"
+              },
+              "legalTaxReviewConfirmed": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "contracts": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "reference": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "ppa": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "is_ppa": {
+                          "type": "boolean"
+                        },
+                        "structure": {
+                          "type": "string",
+                          "enum": [
+                            "physical",
+                            "sleeved",
+                            "onsite",
+                            "virtual",
+                            "unknown"
+                          ]
+                        },
+                        "volume_basis": {
+                          "type": "string",
+                          "enum": [
+                            "pay_as_produced",
+                            "baseload",
+                            "pay_as_consumed",
+                            "fixed_volume",
+                            "unknown"
+                          ]
+                        },
+                        "buyer": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "producer": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "asset": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "technology": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "jurisdiction": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "annual_volume_mwh": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "strike_eur_mwh": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "go_transferred": {
+                          "anyOf": [
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "support_scheme": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "is_ppa",
+                        "structure",
+                        "volume_basis",
+                        "buyer",
+                        "producer",
+                        "asset",
+                        "technology",
+                        "jurisdiction",
+                        "annual_volume_mwh",
+                        "strike_eur_mwh",
+                        "go_transferred",
+                        "support_scheme"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reading_coverage": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "text_read",
+                        "needs_review"
+                      ]
+                    },
+                    "total_characters": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "processed_characters": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "chunks": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "conflict_paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "rejected_evidence_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "source_sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "pages_without_text": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "page_provenance_available": {
+                      "type": "boolean"
+                    },
+                    "evidence": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "topic": {
+                            "type": "string",
+                            "enum": [
+                              "parties",
+                              "asset",
+                              "term",
+                              "price",
+                              "volume",
+                              "delivery",
+                              "balancing",
+                              "negative_prices",
+                              "curtailment",
+                              "availability",
+                              "commissioning",
+                              "credit",
+                              "collateral",
+                              "termination",
+                              "force_majeure",
+                              "change_in_law",
+                              "assignment",
+                              "disputes",
+                              "tax",
+                              "administration",
+                              "guarantees_of_origin",
+                              "public_support",
+                              "reporting",
+                              "other"
+                            ]
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "consequence": {
+                            "type": "string"
+                          },
+                          "beneficiary": {
+                            "type": "string",
+                            "enum": [
+                              "buyer",
+                              "producer",
+                              "both",
+                              "unknown"
+                            ]
+                          },
+                          "obligation": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deadline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "risk": {
+                            "type": "string",
+                            "enum": [
+                              "high",
+                              "medium",
+                              "low",
+                              "unknown"
+                            ]
+                          },
+                          "negotiation": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "excerpt": {
+                            "type": "string"
+                          },
+                          "confidence": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "start": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "end": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "verified_pages": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          }
+                        },
+                        "required": [
+                          "topic",
+                          "title",
+                          "summary",
+                          "consequence",
+                          "beneficiary",
+                          "obligation",
+                          "deadline",
+                          "risk",
+                          "negotiation",
+                          "excerpt",
+                          "confidence",
+                          "start",
+                          "end"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "limitation": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "total_characters",
+                    "processed_characters",
+                    "chunks",
+                    "conflict_paths",
+                    "rejected_evidence_count",
+                    "source_sha256",
+                    "evidence",
+                    "limitation"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "matched_profile": {
+            "type": "object",
+            "properties": {
+              "consumption_kwh": {
+                "minItems": 1,
+                "maxItems": 35136,
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "ppa_generation_kwh": {
+                "minItems": 1,
+                "maxItems": 35136,
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "interval_minutes": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 15
+                  },
+                  {
+                    "type": "number",
+                    "const": 30
+                  },
+                  {
+                    "type": "number",
+                    "const": 60
+                  }
+                ]
+              },
+              "start": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "consumption_kwh",
+              "ppa_generation_kwh",
+              "interval_minutes",
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "customer",
+          "contracts"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_analysis_study",
+      "title": "Créer une étude temporaire",
+      "description": "Crée et lance de façon idempotente une étude MCP temporaire pour n’importe quel outil analytique Boncourant pris en charge. Retourne immédiatement un reçu opaque, un statut et une expiration ; utilisez get_analysis_study pour suivre le traitement. L’entrée brute est supprimée à la fin du job et le résultat expire sous 24 heures. Cette opération crée un état temporaire mais n’agit jamais auprès d’un fournisseur ni d’un compte client.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 200,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "description": "Valeur opaque stable pour réessayer exactement la même création, par exemple un UUID."
+          },
+          "capability_id": {
+            "type": "string",
+            "description": "Identifiant optionnel retourné par list_capabilities ; l’outil doit appartenir à cette capacité."
+          },
+          "target_tool": {
+            "type": "string",
+            "enum": [
+              "simulate",
+              "analyze_bill",
+              "get_methodology",
+              "decompose_invoice",
+              "annualize_invoice",
+              "check_subscribed_power",
+              "analyze_renewal_terms",
+              "assess_historical_optimality",
+              "renewal_advisor",
+              "extract_energy_document",
+              "run_method",
+              "assess_ppa",
+              "eex_connector",
+              "pro_catalog"
+            ]
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Arguments exacts du target_tool selon son schéma tools/list."
+          },
+          "document_file": {
+            "type": "object",
+            "description": "Fichier temporaire ChatGPT à injecter dans extract_energy_document pour un job asynchrone.",
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "download_url",
+              "file_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "target_tool",
+          "arguments"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "_meta": {
+        "openai/fileParams": [
+          "document_file"
+        ],
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ]
+    },
+    {
+      "name": "get_analysis_study",
+      "title": "Suivre une étude temporaire",
+      "description": "Lit l’état queued/running/complete/partial/failed d’une étude temporaire à partir de son reçu secret. Retourne le résultat structuré lorsqu’il est prêt, sans permettre de lister ni d’ouvrir une autre étude.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "type": "string",
+            "pattern": "^bas_[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_analysis_report",
+      "title": "Télécharger le rapport d’une étude",
+      "description": "Retourne le rapport Markdown d’une étude PPA terminée et une URL PDF privée valable deux minutes. Le reçu secret autorise uniquement cette étude et ne doit pas être journalisé ni partagé.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "type": "string",
+            "pattern": "^bas_[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eex_connector",
+      "title": "Lire les indicateurs de marché EEX",
+      "description": "Courbe forward EEX France (CAL Y+1, CAL Y+2, M+1). Lit le snapshot public le plus récent depuis market_observation et indique explicitement quand aucune donnée récente n'est disponible.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asof": {
+            "type": "string",
+            "description": "Date de référence ISO 8601 (YYYY-MM-DD). Défaut : aujourd'hui."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pro_catalog",
+      "title": "Consulter le catalogue professionnel",
+      "description": "Catalogue vérifié des offres d'électricité professionnelles (segment C5, jusqu'à 36 kVA) : nombre d'offres actives, fournisseurs, éventail des prix publiés tout compris, répartition fixe / indexée, date du dernier relevé hebdomadaire. Pour le segment C4 (36 à 250 kVA), retourne le nombre de fournisseurs servis — les prix C4 sont sur devis uniquement. Données relevées chaque semaine auprès du comparateur du Médiateur national de l'énergie.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "securitySchemes": [
+        {
+          "type": "noauth"
+        }
+      ],
+      "_meta": {
+        "securitySchemes": [
+          {
+            "type": "noauth"
+          }
+        ]
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "boncourant://connectors/eex",
+      "name": "eex_connector",
+      "description": "Courbe forward EEX France : CAL Y+1, CAL Y+2, M+1 base/peak. Lit le snapshot le plus récent depuis market_observation (staleness ≤ 4 jours). Source : scraper EEX / opérateur. Données payantes (EEX settlement) : non déployées.",
+      "status": "available"
+    }
+  ]
+}
