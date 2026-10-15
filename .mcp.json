@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "boncourant": {
+      "type": "http",
+      "url": "https://boncourant.fr/mcp"
+    }
+  }
+}
