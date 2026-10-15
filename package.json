@@ -1,7 +1,7 @@
 {
   "name": "boncourant-mcp",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "French electricity-cost optimizer and auditor for households, businesses and energy brokers. Public tools support evidence-based tariff simulations, invoice checks, subscribed-power analysis and contract decisions. No account or API key required for public tools; supported checks depend on the evidence supplied.",
   "homepage": "https://boncourant.fr/agents",
   "repository": "https://github.com/Amrit-Gill/boncourant-mcp"

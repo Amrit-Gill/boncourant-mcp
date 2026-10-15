@@ -44,3 +44,7 @@ The public MCP service does not expose private customer accounts, workspaces, En
 `server.json` is the official registry publication descriptor. `discovery.json` is a dated snapshot of the public discovery manifest, not a replacement for live discovery. This repository does not contain the hosted application's implementation.
 
 Contact: [hello@boncourant.fr](mailto:hello@boncourant.fr).
+
+## Version 1.5.1
+
+Adds repository discovery metadata, clearer tool routing, and explicit temporary-study safety and receipt-access documentation. `run_method` is read-only. Creating an isolated study writes expiring state and may fetch an explicitly supplied document, so it remains non-destructive and idempotent, with `readOnlyHint: false` and `openWorldHint: true`. It never changes a customer account or supplier contract.

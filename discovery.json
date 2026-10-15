@@ -3,10 +3,20 @@
   "endpoint": "https://boncourant.fr/mcp",
   "transport": "streamable-http",
   "authentication": "none",
+  "repository": {
+    "url": "https://github.com/Amrit-Gill/boncourant-mcp",
+    "source": "github"
+  },
+  "security": {
+    "creation": "Public, rate-limited ephemeral computation. No supplier or customer-account writes.",
+    "studyAccess": "Opaque secret receipt required for study results; no listing of studies. Receipt is a bearer capability, not account OAuth.",
+    "retentionHours": 24,
+    "externalActions": false
+  },
   "serverInfo": {
     "name": "boncourant",
     "title": "Boncourant — tarifs et audit d'électricité en France",
-    "version": "1.5.0"
+    "version": "1.5.1"
   },
   "tools": [
     {
@@ -58,7 +68,7 @@
     {
       "name": "hc_schedule_change_impact",
       "title": "Impact d'un changement d'heures creuses",
-      "description": "Calcule ce qu'un changement de plages d'heures creuses coûte à l'année, en facturant deux fois la même consommation (avant / après) avec les mêmes prix et le même abonnement. Les horaires viennent du courrier ou de la facture : aucune adresse ne résout des heures creuses, Enedis les attribuant par point de livraison. Accepte une répartition HP/HC facturée ou une consommation annuelle ; la courbe mesurée se lit dans l'étude Boncourant. Les prix sont fournis par l'appelant, toutes taxes comprises, et rien n'est conservé.",
+      "description": "Calcule l’impact de deux horaires explicitement fournis, sans résoudre un horaire depuis une ville. Calcule ce qu'un changement de plages d'heures creuses coûte à l'année, en facturant deux fois la même consommation (avant / après) avec les mêmes prix et le même abonnement. Les horaires viennent du courrier ou de la facture : aucune adresse ne résout des heures creuses, Enedis les attribuant par point de livraison. Accepte une répartition HP/HC facturée ou une consommation annuelle ; la courbe mesurée se lit dans l'étude Boncourant. Les prix sont fournis par l'appelant, toutes taxes comprises, et rien n'est conservé.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -478,7 +488,7 @@
     {
       "name": "simulate",
       "title": "Simuler une facture résidentielle",
-      "description": "Simule la facture annuelle d'électricité pour un foyer français. Compare les offres de marché au tarif réglementé et estime les économies potentielles.",
+      "description": "Estimation résidentielle rapide à partir des kWh, kVA, du code postal et de l’option, sans facture extraite ; avec des champs de facture structurés, appelez analyze_bill. Compare les offres évaluées au tarif réglementé et explicite les hypothèses.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -540,7 +550,7 @@
     {
       "name": "analyze_bill",
       "title": "Analyser une facture résidentielle",
-      "description": "Analyse une facture d'électricité résidentielle déjà extraite (champs structurés) via le moteur versionné. Retourne un verdict explicite stay/switch et l'option tarifaire de chaque offre ; quand aucune offre ne bat le contrat actuel, recommended_offer ne désigne jamais l'offre plus chère du catalogue. MCP est JSON uniquement : extrayez le PDF en amont, puis appelez cet outil avec les champs.",
+      "description": "Évalue une facture résidentielle déjà extraite (champs structurés) via le moteur versionné ; pour une estimation sur paramètres sans facture, appelez simulate. Il s’agit d’une recommandation prospective, pas du contrôle historique de toutes les lignes facturées. Retourne un verdict explicite stay/switch et l'option tarifaire de chaque offre ; quand aucune offre ne bat le contrat actuel, recommended_offer ne désigne jamais l'offre plus chère du catalogue. MCP est JSON uniquement : extrayez le PDF en amont, puis appelez cet outil avec les champs.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1031,7 +1041,7 @@
     {
       "name": "analyze_renewal_terms",
       "title": "Analyser une échéance contractuelle",
-      "description": "Calcule l'échéance, la date limite de préavis, le dépassement éventuel et l'urgence à partir de clauses déjà extraites. Le type de prix est une valeur canonique, jamais déduit d'un texte libre par cet outil.",
+      "description": "Calcule uniquement l’échéance et le préavis à partir des dates et clauses extraites, sans consulter les prix de marché ; pour une décision de renouvellement avec marché et catalogue, appelez renewal_advisor. Ne chiffre pas de pénalité de résiliation. Le type de prix est une valeur canonique, jamais déduit d'un texte libre par cet outil.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1317,7 +1327,7 @@
     {
       "name": "renewal_advisor",
       "title": "Conseiller un renouvellement professionnel",
-      "description": "Joint l'échéance et le préavis du contrat, la courbe EEX CAL Y+1/Y+2 fraîche et le catalogue professionnel comparable. Une courbe stale/partielle ne déclenche jamais de décision, et seuls les prix HT fourniture sont comparés au prix verrouillé HT fourniture.",
+      "description": "Conseille un renouvellement B2B en combinant préavis, courbe EEX fraîche (eex_connector) et catalogue C5 (pro_catalog) ; pour les seules dates contractuelles sans marché, appelez analyze_renewal_terms. Les prix C4 restent sur devis. Une courbe stale/partielle ne déclenche jamais de décision, et seuls les prix HT fourniture sont comparés au prix verrouillé HT fourniture.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2358,6 +2368,15 @@
         "openai/fileParams": [
           "document_file"
         ],
+        "fr.boncourant/security": {
+          "scope": "ephemeral_compute",
+          "persistentCustomerMutation": false,
+          "authorization": "Creation is public and rate-limited; reading results requires the opaque secret receipt. No optional account bearer authentication is implemented.",
+          "idempotency": "Required idempotency_key; identical requests reuse a receipt, conflicting arguments are rejected.",
+          "retentionHours": 24,
+          "rawInputErasedAfterProcessing": true,
+          "externalAccess": "May run document extraction through the configured processor and fetch an explicitly supplied temporary document URL under SSRF restrictions."
+        },
         "securitySchemes": [
           {
             "type": "noauth"
@@ -2457,7 +2476,7 @@
     {
       "name": "eex_connector",
       "title": "Lire les indicateurs de marché EEX",
-      "description": "Courbe forward EEX France (CAL Y+1, CAL Y+2, M+1). Lit le snapshot public le plus récent depuis market_observation et indique explicitement quand aucune donnée récente n'est disponible.",
+      "description": "Lit les indicateurs forward EEX France (CAL Y+1, CAL Y+2, M+1), sans décision contractuelle ; pour une recommandation de renouvellement, appelez renewal_advisor. Lit le snapshot public le plus récent depuis market_observation et indique explicitement quand aucune donnée récente n'est disponible.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2495,7 +2514,7 @@
     {
       "name": "pro_catalog",
       "title": "Consulter le catalogue professionnel",
-      "description": "Catalogue vérifié des offres d'électricité professionnelles (segment C5, jusqu'à 36 kVA) : nombre d'offres actives, fournisseurs, éventail des prix publiés tout compris, répartition fixe / indexée, date du dernier relevé hebdomadaire. Pour le segment C4 (36 à 250 kVA), retourne le nombre de fournisseurs servis — les prix C4 sont sur devis uniquement. Données relevées chaque semaine auprès du comparateur du Médiateur national de l'énergie.",
+      "description": "Lit le catalogue vérifié des offres d'électricité professionnelles (segment C5, jusqu'à 36 kVA) : nombre d'offres actives, fournisseurs, éventail des prix publiés tout compris, répartition fixe / indexée, date du dernier relevé hebdomadaire. Pour le segment C4 (36 à 250 kVA), retourne le nombre de fournisseurs servis — les prix C4 sont sur devis uniquement. Données relevées chaque semaine auprès du comparateur du Médiateur national de l'énergie.",
       "inputSchema": {
         "type": "object",
         "properties": {},
