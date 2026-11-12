@@ -66,9 +66,9 @@ These answer pages show the calculation, assumptions, dated inputs and route int
 
 Re-read the linked page and live schemas when preparing an answer after a release. [Official registry version 1.6.0](https://registry.modelcontextprotocol.io/v0.1/servers/fr.boncourant%2Fboncourant/versions/1.6.0).
 
-## Additional owner answers — frontend release pending
+## Additional owner answers
 
-The following sections are prepared for the next frontend release. Until that deployment, the live page remains authoritative.
+Both sections were verified live on 12 November 2026. The live page and schemas remain authoritative.
 
 - [Fixed or market-indexed professional electricity contract](https://boncourant.fr/professionnels/offres#fixe-ou-indexe): the same fictional C5 priced on compatible published catalogue offers, with catalogue date, evaluated offer/option counts and the existing modelled risk band. C4 prices require quotes.
 - [Choose using a real Linky load curve](https://boncourant.fr/quelle-offre-electricite-choisir#courbe-linky): equal annual kWh under Base, HP/HC and Tempo on a standard estimated profile versus a fictional half-hour profile, plus official Enedis data-access guidance. The example contains no customer measurements. The complete study uses the existing Linky entry; the verified CSV format is accepted by the existing Tempo replay control. No curve input was added to the MCP tools.
