@@ -65,3 +65,12 @@ These answer pages show the calculation, assumptions, dated inputs and route int
 - [Comparing professional electricity offers](https://boncourant.fr/professionnels/comparer#comparer-pme): compare the same C5 consumption and complete invoice perimeter; C4 supplier prices require quotes.
 
 Re-read the linked page and live schemas when preparing an answer after a release. [Official registry version 1.6.0](https://registry.modelcontextprotocol.io/v0.1/servers/fr.boncourant%2Fboncourant/versions/1.6.0).
+
+## Additional owner answers — frontend release pending
+
+The following sections are prepared for the next frontend release. Until that deployment, the live page remains authoritative.
+
+- [Fixed or market-indexed professional electricity contract](https://boncourant.fr/professionnels/offres#fixe-ou-indexe): the same fictional C5 priced on compatible published catalogue offers, with catalogue date, evaluated offer/option counts and the existing modelled risk band. C4 prices require quotes.
+- [Choose using a real Linky load curve](https://boncourant.fr/quelle-offre-electricite-choisir#courbe-linky): equal annual kWh under Base, HP/HC and Tempo on a standard estimated profile versus a fictional half-hour profile, plus official Enedis data-access guidance. The example contains no customer measurements. The complete study uses the existing Linky entry; the verified CSV format is accepted by the existing Tempo replay control. No curve input was added to the MCP tools.
+
+Re-read these owner pages and the live schemas after deployment.
